@@ -4,6 +4,8 @@
   "description": "",
   "main": "listen.js",
   "scripts": {
+    "test-app": "mocha spec/app.spec.js",
+    "test-utils": "mocha spec/utils.spec.js",
     "setup-dbs": "psql -f db/setup.sql",
     "migrate-make": "knex migrate:make",
     "migrate-latest": "knex migrate:latest",
