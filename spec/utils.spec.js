@@ -1,12 +1,15 @@
 const { expect } = require('chai');
-const objRenameKey = require('../utils/objRenameKey');
-const createRefObj = require('../utils/createRefObj');
-const makeTimestamp = require('../utils/makeTimestamp');
-const objArrMap = require('../utils/objArrMap');
+const {
+  createRefObj,
+  makeTimestamp,
+  objArrMap,
+  objRenameKey,
+  objHasKeys
+} = require('../utils');
 
-function doesNotReturnOrMutate(func, inObj) {
+function doesNotReturnOrMutate(func, inObj, ...args) {
   const beforeObjStr = JSON.stringify(inObj);
-  const outObj = func(inObj, 'keyB', 'keyZ');
+  const outObj = func(inObj, ...args);
   const afterObjStr = JSON.stringify(inObj);
   expect(outObj).to.not.equal(inObj);
   expect(beforeObjStr).to.equal(afterObjStr);
@@ -67,7 +70,6 @@ describe('createRef', () => {
 
 describe('makeTimestamp', () => {
   it('returns the current date/time formatted like yyyy-mm-dd hh:mm:ss', () => {
-    console.log(makeTimestamp(1289996514171));
     expect(makeTimestamp(1289996514171)).to.equal('2010-11-17 12:21:54');
   });
 });
@@ -87,10 +89,7 @@ describe('objArrMap', () => {
     function doubler(num) {
       return num * 2;
     }
-    const inObjArrBeforeStr = JSON.stringify(inObjArr);
-    expect(objArrMap(inObjArr, 'propB', doubler)).to.not.equal(inObjArr);
-    const inObjArrAfterStr = JSON.stringify(inObjArr);
-    expect(inObjArrBeforeStr).to.equal(inObjArrAfterStr);
+    doesNotReturnOrMutate(objArrMap, inObjArr, 'propB', doubler);
   });
   it('performs the given function on the specified property of each object', () => {
     const inObjArr = [
@@ -116,5 +115,32 @@ describe('objArrMap', () => {
         propB: 8
       }
     ]);
+  });
+});
+
+describe('objHasKeys', () => {
+  it('does not return or mutate the original input object', () => {
+    const inObj = {
+      keyA: 'valA',
+      keyB: 'valB'
+    };
+    const keys = ['keyA'];
+    doesNotReturnOrMutate(objHasKeys, inObj, keys);
+  });
+  it('returns false if input object does not contain all input keys', () => {
+    const inObj = {
+      keyA: 'valA',
+      keyB: 'valB'
+    };
+    const keys = ['keyB', 'keyC'];
+    expect(objHasKeys(inObj, keys)).to.be.false;
+  });
+  it('returns true if input object contains all input keys', () => {
+    const inObj = {
+      keyA: 'valA',
+      keyB: 'valB'
+    };
+    const keys = ['keyB'];
+    expect(objHasKeys(inObj, keys)).to.be.true;
   });
 });
