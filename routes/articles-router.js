@@ -5,6 +5,6 @@ const { getArticles } = require('../controllers/articles-controller')
 articlesRouter
   .route('/')
   .get(getArticles)
-  .all(methodNotAllowed);
+  //.all(methodNotAllowed);
 
 module.exports = articlesRouter;
