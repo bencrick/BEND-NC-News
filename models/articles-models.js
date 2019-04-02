@@ -1,20 +1,37 @@
 const connection = require('../db/connection');
+const { objRenameKey } = require('../utils');
 
 function selectArticles(req) {
-  const whereObj = {};
-  for (whereProp in ['query', 'params']) {
-    if (req[whereProp]) {
-      Object.assign(whereObj, req[whereProp]);
-    }
-  }
+  let whereObj = {};
+  Object.assign(whereObj, req.query);
+  Object.assign(whereObj, req.params);
 
-  const sortObj = { sort_by: 'created_at', order: 'desc' };
-  for (sortProp in ['sort_by', 'order']) {
-    if (req.query[sortProp]) {
+  let sortObj = { sort_by: 'created_at', order: 'desc' };
+  ['sort_by', 'order'].forEach(sortProp => {
+    if (req.query.hasOwnProperty(sortProp)) {
       sortObj[sortProp] = req.query[sortProp];
       delete whereObj[sortProp];
     }
-  }
+  });
+
+  const articleFields = [
+    'author',
+    'title',
+    'article_id',
+    'body',
+    'topic',
+    'created_at',
+    'votes'
+  ];
+
+  articleFields.forEach(field => {
+    if (whereObj.hasOwnProperty(field)) {
+      whereObj = objRenameKey(whereObj, field, `articles.${field}`);
+    }
+    if (sortObj.sortProp === field) {
+      sortObj.sortProp === `articles.${field}`;
+    }
+  });
 
   return connection
     .select(
