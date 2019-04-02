@@ -2,6 +2,7 @@ const { expect } = require('chai');
 const objRenameKey = require('../utils/objRenameKey');
 const createRefObj = require('../utils/createRefObj');
 const makeTimestamp = require('../utils/makeTimestamp');
+const objArrMap = require('../utils/objArrMap');
 
 function doesNotReturnOrMutate(func, inObj) {
   const beforeObjStr = JSON.stringify(inObj);
@@ -64,9 +65,56 @@ describe('createRef', () => {
   });
 });
 
-describe.only('makeTimestamp', () => {
+describe('makeTimestamp', () => {
   it('returns the current date/time formatted like yyyy-mm-dd hh:mm:ss', () => {
     console.log(makeTimestamp(1289996514171));
     expect(makeTimestamp(1289996514171)).to.equal('2010-11-17 12:21:54');
+  });
+});
+
+describe('objArrMap', () => {
+  it('does not return or mutate the original input array or the objects it contains', () => {
+    const inObjArr = [
+      {
+        propA: 1,
+        propB: 2
+      },
+      {
+        propA: 3,
+        propB: 4
+      }
+    ];
+    function doubler(num) {
+      return num * 2;
+    }
+    const inObjArrBeforeStr = JSON.stringify(inObjArr);
+    expect(objArrMap(inObjArr, 'propB', doubler)).to.not.equal(inObjArr);
+    const inObjArrAfterStr = JSON.stringify(inObjArr);
+    expect(inObjArrBeforeStr).to.equal(inObjArrAfterStr);
+  });
+  it('performs the given function on the specified property of each object', () => {
+    const inObjArr = [
+      {
+        propA: 1,
+        propB: 2
+      },
+      {
+        propA: 3,
+        propB: 4
+      }
+    ];
+    function doubler(num) {
+      return num * 2;
+    }
+    expect(objArrMap(inObjArr, 'propB', doubler)).to.eql([
+      {
+        propA: 1,
+        propB: 4
+      },
+      {
+        propA: 3,
+        propB: 8
+      }
+    ]);
   });
 });
