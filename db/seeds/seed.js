@@ -11,20 +11,20 @@ exports.seed = (knex, Promise) => {
     .rollback()
     .then(() => knex.migrate.latest())
     .then(() => {
-      console.log('inserting topic data...')
+      // console.log('inserting topic data...')
       return knex('topics')
         .insert(topics)
         .returning('*');
     })
     .then(topicRows => {
-      console.log('inserting user data...');
+      // console.log('inserting user data...');
       return knex('users')
         .insert(users)
         .returning('*');
     })
     .then(userRows => {
       const insertArticles = objArrMap(articles, 'created_at', makeTimestamp);
-      console.log('inserting article data...');
+      // console.log('inserting article data...');
       return knex('articles')
         .insert(insertArticles)
         .returning('*');
@@ -41,7 +41,7 @@ exports.seed = (knex, Promise) => {
         delete newComment.belongs_to;
         return newComment;
       });
-      console.log('inserting comment data...');
+      // console.log('inserting comment data...');
       return knex('comments')
         .insert(insertComments)
         .returning('*');
