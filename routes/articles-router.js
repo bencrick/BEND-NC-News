@@ -1,5 +1,5 @@
 const articlesRouter = require('express').Router();
-const { methodNotAllowed } = require('../errors');
+//const { methodNotAllowed } = require('../errors');
 const { getArticles } = require('../controllers/articles-controller')
 
 articlesRouter

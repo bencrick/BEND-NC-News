@@ -1,34 +1,32 @@
+const connection = require('../db/connection');
+
 function selectArticles(req) {
-  const optionObj = {
-    sort_by: 'created_at',
-    order: 'desc'
-  };
-
-  if (req.query) {
-    Object.assign(optionObj, req.query);
-  }
-  if (req.params) {
-    Object.assign(optionObj, req.params);
+  const whereObj = {};
+  for (whereProp in ['query', 'params']) {
+    if (req[whereProp]) {
+      Object.assign(whereObj, req[whereProp]);
+    }
   }
 
-  const sortObj = {
-    sort_by: optionObj.sort_by,
-    order: optionObj.order
-  };
-
-  const whereObj = { ...optionObj };
-  delete whereObj.sort_by;
-  delete whereObj.order;
+  const sortObj = { sort_by: 'created_at', order: 'desc' };
+  for (sortProp in ['sort_by', 'order']) {
+    if (req.query[sortProp]) {
+      sortObj[sortProp] = req.query[sortProp];
+      delete whereObj[sortProp];
+    }
+  }
 
   return connection
     .select(
       'articles.author',
       'articles.title',
+      'articles.article_id',
+      'articles.body',
       'articles.topic',
       'articles.created_at',
       'articles.votes'
     )
-    .count('comments.comment_id')
+    .count('comments.comment_id AS comment_count')
     .from('articles')
     .leftJoin('comments', 'articles.article_id', '=', 'comments.article_id')
     .where(whereObj)
