@@ -1,3 +1,5 @@
+const makeTimestamp = require('../../utils/makeTimestamp');
+
 exports.up = function(knex, Promise) {
   console.log('creating comment table...');
   return knex.schema.createTable('comments', commentTable => {

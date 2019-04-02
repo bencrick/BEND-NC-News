@@ -1,6 +1,7 @@
 const { expect } = require('chai');
 const objRenameKey = require('../utils/objRenameKey');
 const createRefObj = require('../utils/createRefObj');
+const makeTimestamp = require('../utils/makeTimestamp');
 
 function doesNotReturnOrMutate(func, inObj) {
   const beforeObjStr = JSON.stringify(inObj);
@@ -60,5 +61,12 @@ describe('createRef', () => {
       valA1: 'valB1',
       valA2: 'valB2'
     });
+  });
+});
+
+describe.only('makeTimestamp', () => {
+  it('returns the current date/time formatted like yyyy-mm-dd hh:mm:ss', () => {
+    console.log(makeTimestamp(1289996514171));
+    expect(makeTimestamp(1289996514171)).to.equal('2010-11-17 12:21:54');
   });
 });

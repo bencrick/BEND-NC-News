@@ -1,5 +1,6 @@
 const { articles, comments, topics, users } = require('../data');
 const createRefObj = require('../../utils/createRefObj');
+const makeTimestamp = require('../../utils/makeTimestamp')
 
 exports.seed = (knex, Promise) => {
   return knex.migrate
