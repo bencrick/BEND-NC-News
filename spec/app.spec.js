@@ -290,6 +290,49 @@ describe('/', () => {
         });
       });
     });
-    // COMMENTS
+    describe.only('/comments', () => {
+      describe('PARAMETRIC BEHAVIOUR', () => {
+        describe('/:/comment_id', () => {
+          describe('PATCH', () => {
+            it('produces status: 202', () => {
+              return request
+                .patch('/api/comments/3')
+                .send({ body: 'patched body' })
+                .expect(202);
+            });
+            it('can modify a property of the specified comment', () => {
+              return request
+                .patch('/api/comments/3')
+                .send({ body: 'patched body' })
+                .then(({ body: { comments } }) => {
+                  expect(comments).to.have.lengthOf(1);
+                  expect(comments[0].comment_id).to.equal(3);
+                  expect(comments[0].body).to.equal('patched body');
+                });
+            });
+            it('can increment a numeric property of the specified comment', () => {
+              return request
+                .patch('/api/comments/3')
+                .send({ inc_votes: 5 })
+                .then(({ body: { comments } }) => {
+                  expect(comments).to.have.lengthOf(1);
+                  expect(comments[0].comment_id).to.equal(3);
+                  expect(comments[0].votes).to.equal(105);
+                });
+            });
+          });
+          describe('DELETE', () => {
+            it('produces status: 204', () => {
+              return request.delete('/api/comments/3').expect(204);
+            });
+            it('responds with no content', () => {
+              return request.delete('/api/comments/3').then(({ body }) => {
+                expect(body).to.eql({});
+              });
+            });
+          });
+        });
+      });
+    });
   });
 });
