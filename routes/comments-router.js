@@ -1,5 +1,5 @@
 const commentsRouter = require('express').Router();
-//const { methodNotAllowed } = require('../errors');
+const { methodNotAllowed } = require('../errors');
 const {
   patchComment,
   deleteComment
@@ -8,6 +8,7 @@ const {
 commentsRouter
   .route('/:comment_id')
   .patch(patchComment)
-  .delete(deleteComment);
+  .delete(deleteComment)
+  .all(methodNotAllowed);
 
 module.exports = commentsRouter;

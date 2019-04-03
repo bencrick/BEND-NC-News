@@ -53,6 +53,14 @@ describe('/', () => {
           });
         });
       });
+      describe('ERROR HANDLING', () => {
+        it('returns a status of 405 when used with a method which is not allowed', () => {
+          return request
+            .patch('/api')
+            .send({})
+            .expect(405);
+        });
+      });
     });
     describe('/articles', () => {
       describe('DEFAULT BEHAVIOUR', () => {
@@ -101,6 +109,14 @@ describe('/', () => {
               .then(({ body: { articles } }) => {
                 expect(articles).to.be.descendingBy('created_at');
               });
+          });
+        });
+        describe('ERROR HANDLING', () => {
+          it('returns a status of 405 when used with a method which is not allowed', () => {
+            return request
+              .patch('/api/articles')
+              .send({})
+              .expect(405);
           });
         });
       });
@@ -195,6 +211,14 @@ describe('/', () => {
               });
             });
           });
+          describe('ERROR HANDLING', () => {
+            it('returns a status of 405 when used with a method which is not allowed', () => {
+              return request
+                .post('/api/articles/1')
+                .send({})
+                .expect(405);
+            });
+          });
           describe('/comments', () => {
             describe('GET', () => {
               it('produces status: 200', () => {
@@ -286,6 +310,14 @@ describe('/', () => {
                   });
               });
             });
+            describe('ERROR HANDLING', () => {
+              it('returns a status of 405 when used with a method which is not allowed', () => {
+                return request
+                  .patch('/api/articles/1/comments')
+                  .send({})
+                  .expect(405);
+              });
+            });
           });
         });
       });
@@ -320,6 +352,14 @@ describe('/', () => {
                   expect(comments[0].votes).to.equal(105);
                 });
             });
+            describe('ERROR HANDLING', () => {
+              it('returns a status of 404 when a nonexistent parameter is supplied', () => {
+                return request
+                  .patch('/api/comments/999999999')
+                  .send({ body: 'patched body' })
+                  .expect(404);
+              });
+            });
           });
           describe('DELETE', () => {
             it('produces status: 204', () => {
@@ -329,6 +369,16 @@ describe('/', () => {
               return request.delete('/api/comments/3').then(({ body }) => {
                 expect(body).to.eql({});
               });
+            });
+            describe('ERROR HANDLING', () => {
+              it('returns a status of 404 when a nonexistent parameter is supplied', () => {
+                return request.delete('/api/comments/999999999').expect(404);
+              });
+            });
+          });
+          describe('ERROR HANDLING', () => {
+            it('returns a status of 405 when used with a method which is not allowed', () => {
+              return request.get('/api/comments/1').expect(405);
             });
           });
         });
@@ -342,10 +392,12 @@ describe('/', () => {
               return request.get('/api/users/icellusedkars').expect(200);
             });
             it('provides the returned user object with keys: username, avatar_url, name', () => {
-              return request.get('/api/users/icellusedkars').then(({ body: { user } }) => {
-                const keysRequired = ['username', 'avatar_url', 'name'];
-                expect(objHasKeys(user, keysRequired)).to.be.true;
-              });
+              return request
+                .get('/api/users/icellusedkars')
+                .then(({ body: { user } }) => {
+                  const keysRequired = ['username', 'avatar_url', 'name'];
+                  expect(objHasKeys(user, keysRequired)).to.be.true;
+                });
             });
             it('uses the /:username parameter to select a specific user', () => {
               return request
@@ -353,6 +405,19 @@ describe('/', () => {
                 .then(({ body: { user } }) => {
                   expect(user.name).to.equal('sam');
                 });
+            });
+            describe('ERROR HANDLING', () => {
+              it('returns a status of 404 when a nonexistent parameter is supplied', () => {
+                return request.get('/api/users/999999999').expect(404);
+              });
+            });
+          });
+          describe('ERROR HANDLING', () => {
+            it('returns a status of 405 when used with a method which is not allowed', () => {
+              return request
+                .patch('/api/users/1')
+                .send({})
+                .expect(405);
             });
           });
         });

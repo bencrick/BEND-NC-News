@@ -27,10 +27,17 @@ async function modifyComments(req) {
     .returning('*');
 }
 
-function removeComments(req) {
+async function removeComments(req) {
   const whereObj = {};
   Object.assign(whereObj, req.query);
   Object.assign(whereObj, req.params);
+
+  const currentRows = await selectTableColValues(connection, 'comments', 'comment_id', whereObj)
+
+  if (currentRows.length === 0) {
+    throw { code: 404 }
+  }
+
   return connection('comments')
     .where(whereObj)
     .del();

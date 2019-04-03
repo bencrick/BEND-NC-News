@@ -1,5 +1,5 @@
 const articlesRouter = require('express').Router();
-//const { methodNotAllowed } = require('../errors');
+const { methodNotAllowed } = require('../errors');
 const {
   getArticles,
   patchArticle,
@@ -8,18 +8,22 @@ const {
   postArticleComment
 } = require('../controllers/articles-controller');
 
-articlesRouter.route('/').get(getArticles);
-//.all(methodNotAllowed);
+articlesRouter
+  .route('/')
+  .get(getArticles)
+  .all(methodNotAllowed);
 
 articlesRouter
   .route('/:article_id')
   .get(getArticles)
   .patch(patchArticle)
-  .delete(deleteArticle);
+  .delete(deleteArticle)
+  .all(methodNotAllowed);
 
 articlesRouter
   .route('/:article_id/comments')
   .get(getArticleComments)
   .post(postArticleComment)
+  .all(methodNotAllowed);
 
 module.exports = articlesRouter;
