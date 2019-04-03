@@ -34,15 +34,7 @@ function selectArticles(req) {
   });
 
   return connection
-    .select(
-      'articles.author',
-      'articles.title',
-      'articles.article_id',
-      'articles.body',
-      'articles.topic',
-      'articles.created_at',
-      'articles.votes'
-    )
+    .select(...articleFields.map(field => `articles.${field}`))
     .count('comments.comment_id AS comment_count')
     .from('articles')
     .leftJoin('comments', 'articles.article_id', '=', 'comments.article_id')
@@ -72,7 +64,7 @@ async function modifyArticles(req) {
         updateProp,
         whereObj
       );
-      const updateValue = currentRows[0][updateProp]
+      const updateValue = currentRows[0][updateProp];
       updateObj[updateProp] = updateObj[prop] + updateValue;
       delete updateObj[prop];
     }
@@ -81,6 +73,15 @@ async function modifyArticles(req) {
     .where(whereObj)
     .update(updateObj)
     .returning('*');
+}
+
+function removeArticles(req) {
+  const whereObj = {};
+  Object.assign(whereObj, req.query);
+  Object.assign(whereObj, req.params);
+  return connection('articles')
+    .where(whereObj)
+    .del();
 }
 
 function selectArticleComments(req) {
@@ -96,41 +97,28 @@ function selectArticleComments(req) {
     }
   });
 
-  const articleFields = [
-    'author',
-    'title',
-    'article_id',
-    'body',
-    'topic',
-    'created_at',
-    'votes'
-  ];
+  const commentFields = ['comment_id', 'votes', 'created_at', 'author', 'body', 'article_id'];
 
-  articleFields.forEach(field => {
+  commentFields.forEach(field => {
     if (whereObj.hasOwnProperty(field)) {
-      whereObj = objRenameKey(whereObj, field, `articles.${field}`);
+      whereObj = objRenameKey(whereObj, field, `comments.${field}`);
     }
     if (sortObj.sortProp === field) {
-      sortObj.sortProp === `articles.${field}`;
+      sortObj.sortProp === `comments.${field}`;
     }
   });
 
   return connection
-    .select(
-      'articles.author',
-      'articles.title',
-      'articles.article_id',
-      'articles.body',
-      'articles.topic',
-      'articles.created_at',
-      'articles.votes'
-    )
-    .count('comments.comment_id AS comment_count')
+    .select(...commentFields.slice(0,-1).map(field => `comments.${field}`))
     .from('articles')
-    .leftJoin('comments', 'articles.article_id', '=', 'comments.article_id')
+    .innerJoin('comments', 'articles.article_id', '=', 'comments.article_id')
     .where(whereObj)
-    .groupBy('articles.article_id')
     .orderBy(sortObj.sort_by, sortObj.order);
 }
 
-module.exports = { selectArticles, modifyArticles, selectArticleComments };
+module.exports = {
+  selectArticles,
+  modifyArticles,
+  removeArticles,
+  selectArticleComments
+};

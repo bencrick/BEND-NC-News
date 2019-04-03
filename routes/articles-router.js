@@ -2,7 +2,9 @@ const articlesRouter = require('express').Router();
 //const { methodNotAllowed } = require('../errors');
 const {
   getArticles,
-  patchArticle
+  patchArticle,
+  deleteArticle,
+  getArticleComments
 } = require('../controllers/articles-controller');
 
 articlesRouter.route('/').get(getArticles);
@@ -11,8 +13,11 @@ articlesRouter.route('/').get(getArticles);
 articlesRouter
   .route('/:article_id')
   .get(getArticles)
-  .patch(patchArticle);
+  .patch(patchArticle)
+  .delete(deleteArticle);
 
-//articlesRouter.route('/:article_id/comments').get(getArticleComments);
+articlesRouter
+  .route('/:article_id/comments')
+  .get(getArticleComments);
 
 module.exports = articlesRouter;

@@ -118,43 +118,101 @@ describe('/', () => {
         });
       });
       describe('PARAMETRIC BEHAVIOUR', () => {
-        describe('GET', () => {
-          it('can use an /:article_id parameter to filter results by article_id', () => {
-            return request
-              .get('/api/articles/3')
-              .then(({ body: { articles } }) => {
-                expect(articles).to.have.lengthOf(1);
-                expect(articles[0].article_id).to.equal(3);
+        describe('/:article_id', () => {
+          describe('GET', () => {
+            it('can use an /:article_id parameter to filter results by article_id', () => {
+              return request
+                .get('/api/articles/3')
+                .then(({ body: { articles } }) => {
+                  expect(articles).to.have.lengthOf(1);
+                  expect(articles[0].article_id).to.equal(3);
+                });
+            });
+          });
+          describe('PATCH', () => {
+            it('produces status: 202', () => {
+              return request
+                .patch('/api/articles/3')
+                .send({ title: 'patched title' })
+                .expect(202);
+            });
+            it('can modify a property of the specified article', () => {
+              return request
+                .patch('/api/articles/3')
+                .send({ title: 'patched title' })
+                .then(({ body: { articles } }) => {
+                  expect(articles).to.have.lengthOf(1);
+                  expect(articles[0].article_id).to.equal(3);
+                  expect(articles[0].title).to.equal('patched title');
+                });
+            });
+            it('can increment a numeric property of the specified article', () => {
+              return request
+                .patch('/api/articles/3')
+                .send({ inc_votes: 5 })
+                .then(({ body: { articles } }) => {
+                  expect(articles).to.have.lengthOf(1);
+                  expect(articles[0].article_id).to.equal(3);
+                  expect(articles[0].votes).to.equal(5);
+                });
+            });
+          });
+          describe('DELETE', () => {
+            it('produces status: 204', () => {
+              return request.delete('/api/articles/3').expect(204);
+            });
+            it('responds with no content', () => {
+              return request.delete('/api/articles/3').then(({ body }) => {
+                expect(body).to.eql({});
               });
+            });
           });
-        });
-        describe('PATCH', () => {
-          it('produces status: 202', () => {
-            return request
-              .patch('/api/articles/3')
-              .send({ title: 'patched title' })
-              .expect(202);
-          });
-          it('can modify a property of the specified article', () => {
-            return request
-              .patch('/api/articles/3')
-              .send({ title: 'patched title' })
-              .then(({ body: { articles } }) => {
-                expect(articles).to.have.lengthOf(1);
-                expect(articles[0].article_id).to.equal(3);
-                expect(articles[0].title).to.equal('patched title');
+          describe.only('/comments', () => {
+            describe('GET', () => {
+              it('produces status: 200', () => {
+                return request.get('/api/articles/2/comments').expect(200);
               });
-          });
-          it('can increment a numeric property of the specified article', () => {
-            return request
-              .patch('/api/articles/3')
-              .send({ inc_votes: 5 })
-              .then(({ body: { articles } }) => {
-                expect(articles).to.have.lengthOf(1);
-                expect(articles[0].article_id).to.equal(3);
-                expect(articles[0].votes).to.equal(5);
+              it('returns an object containing an array', () => {
+                return request
+                  .get('/api/articles/2/comments')
+                  .then(({ body: { comments } }) => {
+                    expect(comments).to.be.an('array');
+                  });
               });
-          });
+              it('has an object for each comment within the array', () => {
+                return request
+                  .get('/api/articles/2/comments')
+                  .then(({ body: { comments } }) => {
+                    expect(comments).to.have.lengthOf(6);
+                  });
+              });
+              it('provides each article object with keys: comment_id, votes, created_at, author, body', () => {
+                return request
+                  .get('/api/articles/2/comments')
+                  .then(({ body: { comments } }) => {
+                    const keysRequired = [
+                      'comment_id',
+                      'votes',
+                      'created_at',
+                      'author',
+                      'body'
+                    ];
+                    expect(
+                      comments.every(comment => {
+                        return objHasKeys(comment, keysRequired);
+                      })
+                    ).to.be.true;
+                  });
+              });
+              it('sorts output articles by descending created_at', () => {
+                return request
+                  .get('/api/articles/2/comments')
+                  .then(({ body: { comments } }) => {
+                    expect(comments).to.be.descendingBy('created_at');
+                  });
+              });
+            });
+          })
         });
       });
     });
