@@ -25,7 +25,35 @@ describe('/', () => {
           expect(body.ok).to.equal(true);
         });
     });
-    // TOPICS
+    describe('/topics', () => {
+      describe('DEFAULT BEHAVIOUR', () => {
+        describe('GET', () => {
+          it('produces status: 200', () => {
+            return request.get('/api/topics').expect(200);
+          });
+          it('returns an object containing an array', () => {
+            return request.get('/api/topics').then(({ body: { topics } }) => {
+              expect(topics).to.be.an('array');
+            });
+          });
+          it('has an object for each topic within the array', () => {
+            return request.get('/api/topics').then(({ body: { topics } }) => {
+              expect(topics).to.have.lengthOf(2);
+            });
+          });
+          it('provides each topic object with keys: slug, description', () => {
+            return request.get('/api/topics').then(({ body: { topics } }) => {
+              const keysRequired = ['slug', 'description'];
+              expect(
+                topics.every(topic => {
+                  return objHasKeys(topic, keysRequired);
+                })
+              ).to.be.true;
+            });
+          });
+        });
+      });
+    });
     describe('/articles', () => {
       describe('DEFAULT BEHAVIOUR', () => {
         describe('GET', () => {
