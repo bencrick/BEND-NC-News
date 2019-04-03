@@ -290,7 +290,7 @@ describe('/', () => {
         });
       });
     });
-    describe.only('/comments', () => {
+    describe('/comments', () => {
       describe('PARAMETRIC BEHAVIOUR', () => {
         describe('/:/comment_id', () => {
           describe('PATCH', () => {
@@ -329,6 +329,30 @@ describe('/', () => {
               return request.delete('/api/comments/3').then(({ body }) => {
                 expect(body).to.eql({});
               });
+            });
+          });
+        });
+      });
+    });
+    describe('/users', () => {
+      describe('PARAMETRIC BEHAVIOUR', () => {
+        describe('/:username', () => {
+          describe('GET', () => {
+            it('produces status: 200', () => {
+              return request.get('/api/users/icellusedkars').expect(200);
+            });
+            it('provides the returned user object with keys: username, avatar_url, name', () => {
+              return request.get('/api/users/icellusedkars').then(({ body: { user } }) => {
+                const keysRequired = ['username', 'avatar_url', 'name'];
+                expect(objHasKeys(user, keysRequired)).to.be.true;
+              });
+            });
+            it('uses the /:username parameter to select a specific user', () => {
+              return request
+                .get('/api/users/icellusedkars')
+                .then(({ body: { user } }) => {
+                  expect(user.name).to.equal('sam');
+                });
             });
           });
         });
