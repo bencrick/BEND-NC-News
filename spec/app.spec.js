@@ -117,7 +117,46 @@ describe('/', () => {
           });
         });
       });
-      //describe('PARAMETRIC BEHAVIOUR', () => { })
+      describe('PARAMETRIC BEHAVIOUR', () => {
+        describe('GET', () => {
+          it('can use an /:article_id parameter to filter results by article_id', () => {
+            return request
+              .get('/api/articles/3')
+              .then(({ body: { articles } }) => {
+                expect(articles).to.have.lengthOf(1);
+                expect(articles[0].article_id).to.equal(3);
+              });
+          });
+        });
+        describe('PATCH', () => {
+          it('produces status: 202', () => {
+            return request
+              .patch('/api/articles/3')
+              .send({ title: 'patched title' })
+              .expect(202);
+          });
+          it('can modify a property of the specified article', () => {
+            return request
+              .patch('/api/articles/3')
+              .send({ title: 'patched title' })
+              .then(({ body: { articles } }) => {
+                expect(articles).to.have.lengthOf(1);
+                expect(articles[0].article_id).to.equal(3);
+                expect(articles[0].title).to.equal('patched title');
+              });
+          });
+          it('can increment a numeric property of the specified article', () => {
+            return request
+              .patch('/api/articles/3')
+              .send({ inc_votes: 5 })
+              .then(({ body: { articles } }) => {
+                expect(articles).to.have.lengthOf(1);
+                expect(articles[0].article_id).to.equal(3);
+                expect(articles[0].votes).to.equal(5);
+              });
+          });
+        });
+      });
     });
     // COMMENTS
   });

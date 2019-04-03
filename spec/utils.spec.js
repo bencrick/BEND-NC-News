@@ -1,4 +1,9 @@
+process.env.NODE_ENV = 'test';
+
 const { expect } = require('chai');
+const supertest = require('supertest');
+const connection = require('../db/connection');
+
 const {
   createRefObj,
   makeTimestamp,
