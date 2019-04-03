@@ -43,7 +43,7 @@ describe('/', () => {
             return request
               .get('/api/articles')
               .then(({ body: { articles } }) => {
-                expect(articles).to.have.lengthOf(36);
+                expect(articles).to.have.lengthOf(12);
               });
           });
           it('provides each article object with keys: author, title, article_id, body, topic, created_at, votes, comment_count', () => {
@@ -167,7 +167,7 @@ describe('/', () => {
               });
             });
           });
-          describe.only('/comments', () => {
+          describe('/comments', () => {
             describe('GET', () => {
               it('produces status: 200', () => {
                 return request.get('/api/articles/2/comments').expect(200);
@@ -181,9 +181,9 @@ describe('/', () => {
               });
               it('has an object for each comment within the array', () => {
                 return request
-                  .get('/api/articles/2/comments')
+                  .get('/api/articles/1/comments')
                   .then(({ body: { comments } }) => {
-                    expect(comments).to.have.lengthOf(6);
+                    expect(comments).to.have.lengthOf(13);
                   });
               });
               it('provides each article object with keys: comment_id, votes, created_at, author, body', () => {
@@ -212,7 +212,53 @@ describe('/', () => {
                   });
               });
             });
-          })
+            describe('POST', () => {
+              it('produces status: 201', () => {
+                return request
+                  .post('/api/articles/2/comments')
+                  .send({
+                    username: 'icellusedkars',
+                    body: 'test comment'
+                  })
+                  .expect(201);
+              });
+              it('returns posted comment containing sent information', () => {
+                return request
+                  .post('/api/articles/2/comments')
+                  .send({
+                    username: 'icellusedkars',
+                    body: 'test comment'
+                  })
+                  .then(res => {
+                    const comment = res.body.comment;
+                    expect(comment.author).to.equal('icellusedkars');
+                    expect(comment.body).to.equal('test comment');
+                  });
+              });
+              it('returns comment containing keys: comment_id, author, article_id, votes, created_at, body', () => {
+                return request
+                  .post('/api/articles/2/comments')
+                  .send({
+                    username: 'icellusedkars',
+                    body: 'test comment'
+                  })
+                  .then(res => {
+                    const comment = res.body.comment;
+                    const keysRequired = [
+                      'comment_id',
+                      'author',
+                      'article_id',
+                      'votes',
+                      'created_at',
+                      'body'
+                    ];
+                    expect(objHasKeys(comment, keysRequired)).to.be.true;
+                    expect(comment.author).to.equal('icellusedkars');
+                    expect(comment.body).to.equal('test comment');
+                  });
+              });
+            });
+          });
         });
       });
     });

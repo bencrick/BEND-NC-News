@@ -97,7 +97,14 @@ function selectArticleComments(req) {
     }
   });
 
-  const commentFields = ['comment_id', 'votes', 'created_at', 'author', 'body', 'article_id'];
+  const commentFields = [
+    'comment_id',
+    'votes',
+    'created_at',
+    'author',
+    'body',
+    'article_id'
+  ];
 
   commentFields.forEach(field => {
     if (whereObj.hasOwnProperty(field)) {
@@ -109,16 +116,27 @@ function selectArticleComments(req) {
   });
 
   return connection
-    .select(...commentFields.slice(0,-1).map(field => `comments.${field}`))
+    .select(...commentFields.slice(0, -1).map(field => `comments.${field}`))
     .from('articles')
     .innerJoin('comments', 'articles.article_id', '=', 'comments.article_id')
     .where(whereObj)
     .orderBy(sortObj.sort_by, sortObj.order);
 }
 
+function addArticleComment(req) {
+  const comment = objRenameKey(req.body, 'username', 'author');
+  comment.article_id = req.params.article_id;
+
+  return connection
+    .insert(comment)
+    .into('comments')
+    .returning('*');
+}
+
 module.exports = {
   selectArticles,
   modifyArticles,
   removeArticles,
-  selectArticleComments
+  selectArticleComments,
+  addArticleComment
 };

@@ -2,7 +2,8 @@ const {
   selectArticles,
   modifyArticles,
   removeArticles,
-  selectArticleComments
+  selectArticleComments,
+  addArticleComment
 } = require('../models/articles-models');
 
 function getArticles(req, res, next) {
@@ -29,10 +30,18 @@ function getArticleComments(req, res, next) {
   });
 }
 
+function postArticleComment(req, res, next) {
+  addArticleComment(req).then(comments => {
+    const comment = comments[0]
+    res.status(201).json({ comment });
+  });
+}
+
 module.exports = {
   getArticles,
   patchArticle,
   getArticleComments,
   deleteArticle,
-  getArticleComments
+  getArticleComments,
+  postArticleComment
 };
