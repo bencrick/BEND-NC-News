@@ -1,5 +1,5 @@
 const connection = require('../db/connection');
-const { objRenameKey } = require('../utils');
+const { objRenameKey, selectTableColValues } = require('../utils');
 
 function selectArticles(req) {
   let whereObj = {};
@@ -43,13 +43,6 @@ function selectArticles(req) {
     .orderBy(sortObj.sort_by, sortObj.order);
 }
 
-function selectTableColValue(table, column, whereObj) {
-  return connection
-    .select(column)
-    .from(table)
-    .where(whereObj);
-}
-
 async function modifyArticles(req) {
   const whereObj = {};
   Object.assign(whereObj, req.query);
@@ -59,7 +52,8 @@ async function modifyArticles(req) {
   for (prop in updateObj) {
     if (/^inc_/.test(prop)) {
       const updateProp = prop.replace(/^inc_/, '');
-      const currentRows = await selectTableColValue(
+      const currentRows = await selectTableColValues(
+        connection,
         'articles',
         updateProp,
         whereObj

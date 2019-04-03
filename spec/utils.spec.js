@@ -9,7 +9,8 @@ const {
   makeTimestamp,
   objArrMap,
   objRenameKey,
-  objHasKeys
+  objHasKeys,
+  selectTableColValues
 } = require('../utils');
 
 function doesNotReturnOrMutate(func, inObj, ...args) {
@@ -147,5 +148,17 @@ describe('objHasKeys', () => {
     };
     const keys = ['keyB'];
     expect(objHasKeys(inObj, keys)).to.be.true;
+  });
+});
+
+describe('selectTableColValues', () => {
+  beforeEach(() => connection.seed.run());
+  after(() => connection.destroy());
+  it('returns all values from the specified table column satisfying the conditions of the input where-object', () => {
+    selectTableColValues(connection, 'users', 'name', {
+      username: 'icellusedkars'
+    }).then(userRows => {
+      expect(userRows[0].name).to.equal('sam');
+    });
   });
 });
