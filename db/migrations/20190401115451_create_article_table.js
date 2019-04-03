@@ -8,7 +8,10 @@ exports.up = function(knex, Promise) {
     articleTable.text('body');
     articleTable.integer('votes').defaultTo(0);
     articleTable.string('topic');
-    articleTable.string('author').references('users.username');
+    articleTable
+      .string('author')
+      .references('users.username')
+      .onDelete('CASCADE');
     articleTable.timestamp('created_at').defaultTo(knex.fn.now());
   });
 };
