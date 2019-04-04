@@ -2,85 +2,99 @@
 
 The API for the Northcoders News Sprint in the Front End block of the course.
 
-## Getting Started
+## Setup
 
 - Download the source code into a working directory
 - Install the dependencies:
 
-```javascript
+```bash
 npm install
 ```
 
-- Set up databases
+- Create development and test databases locally:
 
-```javascript
+```bash
 npm run setup-dbs
 ```
 
-- Perform table migrations:
+- Run all migrations:
 
-```javascript
+```bash
 npm run migrate:latest:prod
 ```
 
-- Run the seed to insert data:
+- Seed data into the database:
 
-```javascript
+```bash
 npm run seed:prod
 ```
 
-- Begin listening:
+- Run the server with `node`:
 
-```javascript
+```bash
 npm run start
 ```
 
-## Available Scripts
+## Testing Setup
 
-Create development and test databases locally:
+- Create development and test databases locally:
 
 ```bash
 npm run setup-dbs
 ```
 
-Create a new migration file:
-
-```bash
-npm run migrate-make <filename>
-```
-
-Run all migrations:
+- Run all migrations:
 
 ```bash
 npm run migrate-latest
 ```
 
-Rollback all migrations:
-
-```bash
-npm run migrate-rollback
-```
-
-Run tests:
-
-```bash
-npm test
-```
-
-Rollback, migrate -> latest, then start inserting data into the database:
+- Seed data into the database:
 
 ```bash
 npm run seed
 ```
 
-Run the server with `nodemon`, for hot reload:
+### Testing scripts
+
+- Run the server with `nodemon`, for hot reload:
 
 ```bash
 npm run dev
 ```
 
-Run the server with `node`:
+- Run the server with `node`:
 
 ```bash
 npm start
+```
+
+- Create a new migration file:
+
+```bash
+npm run migrate-make <filename>
+```
+
+- Rollback all migrations:
+
+```bash
+npm run migrate-rollback
+```
+
+- Run server tests:
+
+```bash
+npm run test-app
+```
+
+- Run util tests:
+
+```bash
+npm run test-utils
+```
+
+- Run app and util tests sequentially:
+
+```bash
+npm test
 ```
