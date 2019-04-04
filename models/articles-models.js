@@ -1,5 +1,9 @@
 const connection = require('../db/connection');
-const { objRenameKey, selectTableColValues, noRowsThrow404 } = require('../utils');
+const {
+  objRenameKey,
+  selectTableColValues,
+  noRowsThrow404
+} = require('../utils');
 
 async function selectArticles(req) {
   let whereObj = {};
@@ -15,7 +19,7 @@ async function selectArticles(req) {
   });
 
   if (Object.keys(req.params).length > 0) {
-    await noRowsThrow404(connection, 'articles', whereObj)
+    await noRowsThrow404(connection, 'articles', whereObj);
   }
 
   const articleFields = [
@@ -27,6 +31,12 @@ async function selectArticles(req) {
     'created_at',
     'votes'
   ];
+
+  for (prop in req.query) {
+    if (!['sort_by', 'order', ...articleFields].includes(prop)) {
+      throw { code: 400 };
+    }
+  }
 
   articleFields.forEach(field => {
     if (whereObj.hasOwnProperty(field)) {
@@ -53,7 +63,7 @@ async function modifyArticles(req) {
   Object.assign(whereObj, req.params);
   const updateObj = req.body;
 
-  await noRowsThrow404(connection, 'articles', whereObj)
+  await noRowsThrow404(connection, 'articles', whereObj);
 
   for (prop in updateObj) {
     if (/^inc_/.test(prop)) {
@@ -80,7 +90,7 @@ async function removeArticles(req) {
   Object.assign(whereObj, req.query);
   Object.assign(whereObj, req.params);
 
-  await noRowsThrow404(connection, 'articles', whereObj)
+  await noRowsThrow404(connection, 'articles', whereObj);
 
   return connection('articles')
     .where(whereObj)
@@ -110,6 +120,12 @@ async function selectArticleComments(req) {
     'body',
     'article_id'
   ];
+
+  for (prop in req.query) {
+    if (!commentFields.includes(prop)) {
+      throw { code: 400 };
+    }
+  }
 
   commentFields.forEach(field => {
     if (whereObj.hasOwnProperty(field)) {

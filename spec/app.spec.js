@@ -6,6 +6,7 @@ const expect = chai.expect;
 const supertest = require('supertest');
 
 const app = require('../app');
+
 const connection = require('../db/connection');
 
 const request = supertest(app);
@@ -126,8 +127,9 @@ describe('/', () => {
             return request
               .get('/api/articles?author=icellusedkars')
               .then(({ body: { articles } }) => {
-                expect(articles.every(article => article.author === 'icellusedkars')).to
-                  .be.true;
+                expect(
+                  articles.every(article => article.author === 'icellusedkars')
+                ).to.be.true;
               });
           });
           it('can use a ?topic= query to filter results by topic', () => {
@@ -160,6 +162,11 @@ describe('/', () => {
               );
           });
         });
+        describe('ERROR HANDLING', () => {
+          it('returns a status of 400 when a nonexistent parameter is supplied', () => {
+            return request.get('/api/articles?invalidquery=0').expect(400);
+          });
+        });
       });
       describe('PARAMETRIC BEHAVIOUR', () => {
         describe('/:article_id', () => {
@@ -172,10 +179,10 @@ describe('/', () => {
                   expect(articles[0].article_id).to.equal(3);
                 });
             });
-          });
-          describe('ERROR HANDLING', () => {
-            it('returns a status of 404 when a nonexistent parameter is supplied', () => {
-              return request.get('/api/articles/999999999').expect(404);
+            describe('ERROR HANDLING', () => {
+              it('returns a status of 404 when a nonexistent parameter is supplied', () => {
+                return request.get('/api/articles/999999999').expect(404);
+              });
             });
           });
           describe('PATCH', () => {

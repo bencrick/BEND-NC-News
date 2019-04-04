@@ -152,24 +152,26 @@ describe('objHasKeys', () => {
   });
 });
 
-describe('selectTableColValues', () => {
-  beforeEach(() => connection.seed.run());
-  // after(() => connection.destroy());
-  it('returns all values from the specified table column satisfying the conditions of the input where-object', () => {
-    selectTableColValues(connection, 'users', 'name', {
-      username: 'icellusedkars'
-    }).then(userRows => {
-      expect(userRows[0].name).to.equal('sam');
-    });
-  });
-});
-
-describe('noRowsThrow404', () => {
+describe('connection utils', () => {
   beforeEach(() => connection.seed.run());
   after(() => connection.destroy());
-  it('returns a status of 404 when a nonexistent parameter is supplied', () => {
-    expect(() =>
-      noRowsThrow404(connection, 'articles', { article_id: 999999999 })
-    ).to.throw({ code: 404 });
+  describe('selectTableColValues', () => {
+    it('returns all values from the specified table column satisfying the conditions of the input where-object', () => {
+      selectTableColValues(connection, 'users', 'name', {
+        username: 'icellusedkars'
+      }).then(userRows => {
+        expect(userRows[0].name).to.equal('sam');
+      });
+    });
+  });
+
+  describe('noRowsThrow404', () => {
+    it('returns a status of 404 when a nonexistent parameter is supplied', () => {
+      noRowsThrow404(connection, 'articles', { article_id: 999999999 }).catch(
+        err => {
+          expect(err.code).to.equal(404);
+        }
+      );
+    });
   });
 });
