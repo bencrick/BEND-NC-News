@@ -18,14 +18,21 @@ describe('/', () => {
   after(() => connection.destroy());
 
   describe('/api', () => {
-    it('GET status:200', () => {
-      return request
-        .get('/api')
-        .expect(200)
-        .then(({ body }) => {
-          expect(body.ok).to.equal(true);
-        });
-    });
+    describe('GET', () => {
+      it('produces status:200', () => {
+        return request
+          .get('/api')
+          .expect(200)
+      });
+      it('returns an object describing available data endpoints', () => {
+        return request
+          .get('/api')
+          .expect(200)
+          .then(({ body }) => {
+            expect(Object.keys(body)).to.eql(['topics', 'articles', 'article', 'article-comments', 'comment', 'user']);
+          });
+      });
+    })
     describe('/topics', () => {
       describe('DEFAULT BEHAVIOUR', () => {
         describe('GET', () => {
