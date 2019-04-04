@@ -107,21 +107,17 @@ npm test
 /api
 ```
 
-#### GET
+- #### GET
 
-```
-GET /api
-```
+  Responds with JSON describing all the available endpoints
 
-Responds with JSON describing all the available endpoints
+### Topics
 
 ```
 /api/topics
 ```
 
-```
-GET /api/topics
-```
+#### GET
 
 Responds with JSON describing all topics
 
@@ -131,13 +127,9 @@ Responds with JSON describing all topics
 /api/articles
 ```
 
-#### GET
+- #### GET
 
-```
-GET /api/articles
-```
-
-Responds with JSON describing all articles. Can be queried by article properties and sorted by querying sort_by and/or order.
+  Responds with JSON describing all articles. Can be queried by article properties and sorted by querying sort_by and/or order.
 
 ### Article by Article ID
 
@@ -145,35 +137,31 @@ Responds with JSON describing all articles. Can be queried by article properties
 /api/articles/:article_id
 ```
 
-```
-GET /api/articles/:article_id
-```
+- #### GET
 
-Responds with JSON describing a specific article.
+  Responds with JSON describing a specific article.
 
-#### PATCH
+- #### PATCH
 
-```
-PATCH /api/articles/:article_id
-```
+  Can modify the specified article by sending a redefinition of a property, e.g.:
 
-Can modify the specified article by sending a redefinition of a property, e.g.:
+  ```json
+  { "title": "new title" }
+  ```
 
-```json
-{ "title": "new title" }
-```
+  Can also increase or decrease the article's votes by sending e.g.:
 
-Can also increase or decrease the article's votes by sending e.g.:
+  ```json
+  { "inc_votes": 5 }
+  ```
 
-```json
-{ "inc_votes": 5 }
-```
+  ```json
+  { "inc_votes": -10 }
+  ```
 
-```json
-{ "inc_votes": -10 }
-```
+- #### DELETE
 
-#### DELETE
+  Deletes the specified article from the database, along with any associated comments.
 
 ### Article Comments by Article ID
 
@@ -181,14 +169,42 @@ Can also increase or decrease the article's votes by sending e.g.:
 /api/articles/:article_id/comments
 ```
 
+- #### GET
+
+  Responds with JSON describing all comments associated with the specified article.
+
+- #### POST
+
+  Adds a comment to an article by sending e.g.:
+
+  ```json
+  { "username": "example_user", "body": "example comment" }
+  ```
+
 ### Comment by Comment ID
 
 ```
 /api/comments/:comment_id
 ```
 
+- #### PATCH
+
+  Can modify the specified comment by sending a redefinition of a property, e.g.:
+
+  ```json
+  { "body": "modified comment text" }
+  ```
+
+- #### DELETE
+
+  Deletes the specified comment from the database.
+
 ### User by Username
 
 ```
 /api/users/:username
 ```
+
+- #### GET
+
+  Responds with JSON describing a specific user.
