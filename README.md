@@ -55,7 +55,7 @@ npm run migrate-latest
 npm run seed
 ```
 
-### Testing scripts
+### Testing Scripts
 
 - Run the server with `nodemon`, for hot reload:
 
