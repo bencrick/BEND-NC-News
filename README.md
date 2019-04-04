@@ -1,5 +1,40 @@
 # nc_news
 
+The API for the Northcoders News Sprint in the Front End block of the course.
+
+## Getting Started
+
+- Download the source code into a working directory
+- Install the dependencies:
+
+```javascript
+npm install
+```
+
+- Set up databases
+
+```javascript
+npm run setup-dbs
+```
+
+- Perform table migrations:
+
+```javascript
+npm run migrate:latest:prod
+```
+
+- Run the seed to insert data:
+
+```javascript
+npm run seed:prod
+```
+
+- Begin listening:
+
+```javascript
+npm run start
+```
+
 ## Available Scripts
 
 Create development and test databases locally:
