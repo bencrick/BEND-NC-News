@@ -98,3 +98,97 @@ npm run test-utils
 ```bash
 npm test
 ```
+
+## Available Endpoints
+
+### API
+
+```
+/api
+```
+
+#### GET
+
+```
+GET /api
+```
+
+Responds with JSON describing all the available endpoints
+
+```
+/api/topics
+```
+
+```
+GET /api/topics
+```
+
+Responds with JSON describing all topics
+
+### Articles
+
+```
+/api/articles
+```
+
+#### GET
+
+```
+GET /api/articles
+```
+
+Responds with JSON describing all articles. Can be queried by article properties and sorted by querying sort_by and/or order.
+
+### Article by Article ID
+
+```
+/api/articles/:article_id
+```
+
+```
+GET /api/articles/:article_id
+```
+
+Responds with JSON describing a specific article.
+
+#### PATCH
+
+```
+PATCH /api/articles/:article_id
+```
+
+Can modify the specified article by sending a redefinition of a property, e.g.:
+
+```json
+{ "title": "new title" }
+```
+
+Can also increase or decrease the article's votes by sending e.g.:
+
+```json
+{ "inc_votes": 5 }
+```
+
+```json
+{ "inc_votes": -10 }
+```
+
+#### DELETE
+
+### Article Comments by Article ID
+
+```
+/api/articles/:article_id/comments
+```
+
+### Comment by Comment ID
+
+```
+/api/comments/:comment_id
+```
+
+### User by Username
+
+```
+/api/users/:username
+```
