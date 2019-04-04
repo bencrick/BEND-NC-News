@@ -10,7 +10,8 @@ const {
   objArrMap,
   objRenameKey,
   objHasKeys,
-  selectTableColValues
+  selectTableColValues,
+  noRowsThrow404
 } = require('../utils');
 
 function doesNotReturnOrMutate(func, inObj, ...args) {
@@ -153,12 +154,22 @@ describe('objHasKeys', () => {
 
 describe('selectTableColValues', () => {
   beforeEach(() => connection.seed.run());
-  after(() => connection.destroy());
+  // after(() => connection.destroy());
   it('returns all values from the specified table column satisfying the conditions of the input where-object', () => {
     selectTableColValues(connection, 'users', 'name', {
       username: 'icellusedkars'
     }).then(userRows => {
       expect(userRows[0].name).to.equal('sam');
     });
+  });
+});
+
+describe('noRowsThrow404', () => {
+  beforeEach(() => connection.seed.run());
+  after(() => connection.destroy());
+  it('returns a status of 404 when a nonexistent parameter is supplied', () => {
+    expect(() =>
+      noRowsThrow404(connection, 'articles', { article_id: 999999999 })
+    ).to.throw({ code: 404 });
   });
 });

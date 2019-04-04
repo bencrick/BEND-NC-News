@@ -4,6 +4,7 @@ const objArrMap = require('./objArrMap');
 const objRenameKey = require('./objRenameKey');
 const objHasKeys = require('./objHasKeys');
 const selectTableColValues = require('./selectTableColValues');
+const noRowsThrow404 = require('./noRowsThrow404');
 
 module.exports = {
   createRefObj,
@@ -11,5 +12,6 @@ module.exports = {
   objArrMap,
   objRenameKey,
   objHasKeys,
-  selectTableColValues
+  selectTableColValues,
+  noRowsThrow404
 };
