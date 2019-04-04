@@ -1,7 +1,7 @@
 const connection = require('../db/connection');
-const { objRenameKey, selectTableColValues } = require('../utils');
+const { objRenameKey, selectTableColValues, noRowsThrow404 } = require('../utils');
 
-function selectArticles(req) {
+async function selectArticles(req) {
   let whereObj = {};
   Object.assign(whereObj, req.query);
   Object.assign(whereObj, req.params);
@@ -13,6 +13,10 @@ function selectArticles(req) {
       delete whereObj[sortProp];
     }
   });
+
+  if (Object.keys(req.params).length > 0) {
+    await noRowsThrow404(connection, 'articles', whereObj)
+  }
 
   const articleFields = [
     'author',
@@ -49,6 +53,8 @@ async function modifyArticles(req) {
   Object.assign(whereObj, req.params);
   const updateObj = req.body;
 
+  await noRowsThrow404(connection, 'articles', whereObj)
+
   for (prop in updateObj) {
     if (/^inc_/.test(prop)) {
       const updateProp = prop.replace(/^inc_/, '');
@@ -69,16 +75,19 @@ async function modifyArticles(req) {
     .returning('*');
 }
 
-function removeArticles(req) {
+async function removeArticles(req) {
   const whereObj = {};
   Object.assign(whereObj, req.query);
   Object.assign(whereObj, req.params);
+
+  await noRowsThrow404(connection, 'articles', whereObj)
+
   return connection('articles')
     .where(whereObj)
     .del();
 }
 
-function selectArticleComments(req) {
+async function selectArticleComments(req) {
   let whereObj = {};
   Object.assign(whereObj, req.query);
   Object.assign(whereObj, req.params);
@@ -90,6 +99,8 @@ function selectArticleComments(req) {
       delete whereObj[sortProp];
     }
   });
+
+  await noRowsThrow404(connection, 'articles', whereObj);
 
   const commentFields = [
     'comment_id',
@@ -120,7 +131,6 @@ function selectArticleComments(req) {
 function addArticleComment(req) {
   const comment = objRenameKey(req.body, 'username', 'author');
   comment.article_id = req.params.article_id;
-
   return connection
     .insert(comment)
     .into('comments')

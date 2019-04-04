@@ -22,7 +22,8 @@ app.use('/api', apiRouter);
 app.all('/*', routeNotFound);
 
 app.use((err, req, res, next) => {
-  if (err.code === '22P02') {
+  const codes = ['22P02']
+  if (codes.includes(String(err.code))) {
     badRequest(req, res);
   } else {
     next(err);
@@ -30,7 +31,8 @@ app.use((err, req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-  if (err.code === 404) {
+  const codes = ['404', '23503']
+  if (codes.includes(String(err.code))) {
     routeNotFound(req, res);
   } else {
     next(err);
@@ -39,7 +41,8 @@ app.use((err, req, res, next) => {
 
 app.use((err, req, res, next) => {
   console.log(err.code, '<--- error code');
-  if (err.code === 422) {
+  const codes = ['422']
+  if (codes.includes(String(err.code))) {
     unprocessableEntity(req, res);
   } else {
     next(err);

@@ -1,5 +1,9 @@
 const connection = require('../db/connection');
-const { objRenameKey, selectTableColValues } = require('../utils');
+const {
+  objRenameKey,
+  selectTableColValues,
+  noRowsThrow404
+} = require('../utils');
 
 async function modifyComments(req) {
   const whereObj = {};
@@ -32,11 +36,7 @@ async function removeComments(req) {
   Object.assign(whereObj, req.query);
   Object.assign(whereObj, req.params);
 
-  const currentRows = await selectTableColValues(connection, 'comments', 'comment_id', whereObj)
-
-  if (currentRows.length === 0) {
-    throw { code: 404 }
-  }
+  await noRowsThrow404(connection, 'comments', whereObj);
 
   return connection('comments')
     .where(whereObj)

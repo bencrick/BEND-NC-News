@@ -124,9 +124,9 @@ describe('/', () => {
         describe('GET', () => {
           it('can use an ?author= query to filter results by author', () => {
             return request
-              .get('/api/articles?author=mitch')
+              .get('/api/articles?author=icellusedkars')
               .then(({ body: { articles } }) => {
-                expect(articles.every(article => article.author === 'mitch')).to
+                expect(articles.every(article => article.author === 'icellusedkars')).to
                   .be.true;
               });
           });
@@ -173,6 +173,11 @@ describe('/', () => {
                 });
             });
           });
+          describe('ERROR HANDLING', () => {
+            it('returns a status of 404 when a nonexistent parameter is supplied', () => {
+              return request.get('/api/articles/999999999').expect(404);
+            });
+          });
           describe('PATCH', () => {
             it('produces status: 202', () => {
               return request
@@ -200,6 +205,14 @@ describe('/', () => {
                   expect(articles[0].votes).to.equal(5);
                 });
             });
+            describe('ERROR HANDLING', () => {
+              it('returns a status of 404 when a nonexistent parameter is supplied', () => {
+                return request
+                  .patch('/api/articles/999999999')
+                  .send({ title: 'patched title', inc_votes: 5 })
+                  .expect(404);
+              });
+            });
           });
           describe('DELETE', () => {
             it('produces status: 204', () => {
@@ -208,6 +221,11 @@ describe('/', () => {
             it('responds with no content', () => {
               return request.delete('/api/articles/3').then(({ body }) => {
                 expect(body).to.eql({});
+              });
+            });
+            describe('ERROR HANDLING', () => {
+              it('returns a status of 404 when a nonexistent parameter is supplied', () => {
+                return request.delete('/api/comments/999999999').expect(404);
               });
             });
           });
@@ -263,6 +281,13 @@ describe('/', () => {
                     expect(comments).to.be.descendingBy('created_at');
                   });
               });
+              describe('ERROR HANDLING', () => {
+                it('returns a status of 404 when a nonexistent parameter is supplied', () => {
+                  return request
+                    .get('/api/articles/999999999/comments')
+                    .expect(404);
+                });
+              });
             });
             describe('POST', () => {
               it('produces status: 201', () => {
@@ -308,6 +333,17 @@ describe('/', () => {
                     expect(comment.author).to.equal('icellusedkars');
                     expect(comment.body).to.equal('test comment');
                   });
+              });
+              describe('ERROR HANDLING', () => {
+                it('returns a status of 404 when a nonexistent parameter is supplied', () => {
+                  return request
+                    .post('/api/articles/999999999/comments')
+                    .send({
+                      username: 'icellusedkars',
+                      body: 'test comment'
+                    })
+                    .expect(404);
+                });
               });
             });
             describe('ERROR HANDLING', () => {
@@ -363,10 +399,10 @@ describe('/', () => {
           });
           describe('DELETE', () => {
             it('produces status: 204', () => {
-              return request.delete('/api/comments/3').expect(204);
+              return request.delete('/api/comments/1').expect(204);
             });
             it('responds with no content', () => {
-              return request.delete('/api/comments/3').then(({ body }) => {
+              return request.delete('/api/comments/1').then(({ body }) => {
                 expect(body).to.eql({});
               });
             });

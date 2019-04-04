@@ -9,6 +9,9 @@ const {
 function getArticles(req, res, next) {
   selectArticles(req)
     .then(articles => {
+      if (articles.length === 0) {
+        throw { code: 404 };
+      }
       res.status(200).json({ articles });
     })
     .catch(next);
