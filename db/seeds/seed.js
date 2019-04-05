@@ -23,27 +23,38 @@ exports.seed = (knex, Promise) => {
         .returning('*');
     })
     .then(userRows => {
-      const insertArticles = objArrMap(articles, 'created_at', makeTimestamp);
+      const articlesToInsert = articles.map(
+        ({ created_at, ...articleDatum }) => {
+          return {
+            created_at: new Date(created_at),
+            ...articleDatum
+          };
+        }
+      );
       // console.log('inserting article data...');
       return knex('articles')
-        .insert(insertArticles)
+        .insert(articlesToInsert)
         .returning('*');
     })
     .then(articleRows => {
-      const articleTitleToId = createRefObj(articleRows, 'title', 'article_id');
-      const insertComments = objArrMap(
-        comments,
-        'created_at',
-        makeTimestamp
-      ).map(comment => {
-        let newComment = objRenameKey(comment, 'created_by', 'author');
-        newComment.article_id = articleTitleToId[comment.belongs_to];
-        delete newComment.belongs_to;
-        return newComment;
-      });
+      const refArticleTitleToId = createRefObj(
+        articleRows,
+        'title',
+        'article_id'
+      );
+      const commentsToInsert = comments.map(
+        ({ created_at, created_by, belongs_to, ...commentDatum }) => {
+          return {
+            created_at: new Date(created_at),
+            author: created_by,
+            article_id: refArticleTitleToId[belongs_to],
+            ...commentDatum
+          };
+        }
+      );
       // console.log('inserting comment data...');
       return knex('comments')
-        .insert(insertComments)
+        .insert(commentsToInsert)
         .returning('*');
-    })
+    });
 };

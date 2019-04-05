@@ -1,6 +1,6 @@
 const connection = require('../db/connection');
 
-function selectTopics(req) {
+function selectTopics() {
   return connection.select('*').from('topics');
 }
 

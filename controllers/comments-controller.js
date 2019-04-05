@@ -1,10 +1,10 @@
 const { modifyComments, removeComments } = require('../models/comments-models');
 
 function patchComment(req, res, next) {
-  modifyComments(req)
+  modifyComments(req.params, req.body)
     .then(comments => {
       if (comments.length === 0) {
-        throw { code: 404 }
+        throw { code: 404 };
       }
       res.status(202).json({ comments });
     })
@@ -12,9 +12,13 @@ function patchComment(req, res, next) {
 }
 
 function deleteComment(req, res, next) {
-  removeComments(req)
-    .then(comments => {
-      res.status(204).json({ comments });
+  removeComments(req.params)
+    .then(deletions => {
+      if (deletions === 0) {
+        next({ code: 404 });
+      } else {
+        res.status(204).json({});
+      }
     })
     .catch(next);
 }

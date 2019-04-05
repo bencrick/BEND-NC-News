@@ -5,41 +5,31 @@ const {
   noRowsThrow404
 } = require('../utils');
 
-async function modifyComments(req) {
-  const whereObj = {};
-  Object.assign(whereObj, req.query);
-  Object.assign(whereObj, req.params);
-  const updateObj = req.body;
-
+function modifyComments(params, updateObj) {
+  const incrementObj = {};
   for (prop in updateObj) {
     if (/^inc_/.test(prop)) {
-      const updateProp = prop.replace(/^inc_/, '');
-      const currentRows = await selectTableColValues(
-        connection,
-        'comments',
-        updateProp,
-        whereObj
-      );
-      const updateValue = currentRows[0][updateProp];
-      updateObj[updateProp] = updateObj[prop] + updateValue;
+      incrementObj[prop.replace(/^inc_/, '')] = updateObj[prop];
       delete updateObj[prop];
     }
   }
-  return connection('comments')
-    .where(whereObj)
-    .update(updateObj)
+  const connectionPromise = connection('comments')
+    .where(params)
     .returning('*');
+
+  if (Object.keys(incrementObj).length > 0) {
+    connectionPromise.increment(incrementObj);
+  }
+  if (Object.keys(updateObj).length > 0) {
+    connectionPromise.update(updateObj);
+  }
+
+  return connectionPromise;
 }
 
-async function removeComments(req) {
-  const whereObj = {};
-  Object.assign(whereObj, req.query);
-  Object.assign(whereObj, req.params);
-
-  await noRowsThrow404(connection, 'comments', whereObj);
-
+function removeComments(params) {
   return connection('comments')
-    .where(whereObj)
+    .where(params)
     .del();
 }
 

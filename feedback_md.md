@@ -85,6 +85,7 @@ e.g. `fetchArticles = ({ author, topic, sort_by, order = "desc" }) => `
    GET status:200 responds with an empty array for articles queried with non-existent topic:
    Error: expected 200 "OK", got 404 "Not Found"
     - If queried topic is empty, should just not return any articles in the array rather than throw an error.
+    - CHANGED - KEEP AS IS - 404 will make error handling on front-end easier
 
 2. `/articles`
    GET status:200 will ignore an invalid sort_by query:

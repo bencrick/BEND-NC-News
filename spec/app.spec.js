@@ -20,19 +20,24 @@ describe('/', () => {
   describe('/api', () => {
     describe('GET', () => {
       it('produces status:200', () => {
-        return request
-          .get('/api')
-          .expect(200)
+        return request.get('/api').expect(200);
       });
       it('returns an object describing available data endpoints', () => {
         return request
           .get('/api')
           .expect(200)
           .then(({ body }) => {
-            expect(Object.keys(body)).to.eql(['topics', 'articles', 'article', 'article-comments', 'comment', 'user']);
+            expect(Object.keys(body)).to.eql([
+              'topics',
+              'articles',
+              'article',
+              'article-comments',
+              'comment',
+              'user'
+            ]);
           });
       });
-    })
+    });
     describe('/topics', () => {
       describe('DEFAULT BEHAVIOUR', () => {
         describe('GET', () => {
@@ -374,7 +379,7 @@ describe('/', () => {
     });
     describe('/comments', () => {
       describe('PARAMETRIC BEHAVIOUR', () => {
-        describe('/:/comment_id', () => {
+        describe('/:comment_id', () => {
           describe('PATCH', () => {
             it('produces status: 202', () => {
               return request

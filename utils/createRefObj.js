@@ -1,7 +1,8 @@
 function createRefObj(objArr, keyProp, valProp) {
-  const refObj = {};
-  objArr.forEach(obj => (refObj[obj[keyProp]] = obj[valProp]));
-  return refObj;
+  return objArr.reduce(
+    (acc, cv) => ({ ...acc, [cv[keyProp]]: cv[valProp] }),
+    {}
+  );
 }
 
 module.exports = createRefObj;

@@ -43,7 +43,7 @@ describe('objRenameKey', () => {
   });
 });
 
-describe('createRef', () => {
+describe('createRefObj', () => {
   it('does not return or mutate the original input object', () => {
     const inObjArr = [
       {
