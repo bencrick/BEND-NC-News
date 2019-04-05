@@ -4,9 +4,10 @@ function patchComment(req, res, next) {
   modifyComments(req.params, req.body)
     .then(comments => {
       if (comments.length === 0) {
-        throw { code: 404 };
+        next({ code: 404 });
+      } else {
+        res.status(202).json({ comments });
       }
-      res.status(202).json({ comments });
     })
     .catch(next);
 }

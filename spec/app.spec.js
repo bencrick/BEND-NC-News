@@ -186,9 +186,8 @@ describe('/', () => {
             it('can use an /:article_id parameter to filter results by article_id', () => {
               return request
                 .get('/api/articles/3')
-                .then(({ body: { articles } }) => {
-                  expect(articles).to.have.lengthOf(1);
-                  expect(articles[0].article_id).to.equal(3);
+                .then(({ body: { article } }) => {
+                  expect(article.article_id).to.equal(3);
                 });
             });
             describe('ERROR HANDLING', () => {
@@ -208,20 +207,18 @@ describe('/', () => {
               return request
                 .patch('/api/articles/3')
                 .send({ title: 'patched title' })
-                .then(({ body: { articles } }) => {
-                  expect(articles).to.have.lengthOf(1);
-                  expect(articles[0].article_id).to.equal(3);
-                  expect(articles[0].title).to.equal('patched title');
+                .then(({ body: { article } }) => {
+                  expect(article.article_id).to.equal(3);
+                  expect(article.title).to.equal('patched title');
                 });
             });
             it('can increment a numeric property of the specified article', () => {
               return request
                 .patch('/api/articles/3')
                 .send({ inc_votes: 5 })
-                .then(({ body: { articles } }) => {
-                  expect(articles).to.have.lengthOf(1);
-                  expect(articles[0].article_id).to.equal(3);
-                  expect(articles[0].votes).to.equal(5);
+                .then(({ body: { article } }) => {
+                  expect(article.article_id).to.equal(3);
+                  expect(article.votes).to.equal(5);
                 });
             });
             describe('ERROR HANDLING', () => {
@@ -259,11 +256,11 @@ describe('/', () => {
           describe('/comments', () => {
             describe('GET', () => {
               it('produces status: 200', () => {
-                return request.get('/api/articles/2/comments').expect(200);
+                return request.get('/api/articles/1/comments').expect(200);
               });
               it('returns an object containing an array', () => {
                 return request
-                  .get('/api/articles/2/comments')
+                  .get('/api/articles/1/comments')
                   .then(({ body: { comments } }) => {
                     expect(comments).to.be.an('array');
                   });
@@ -277,7 +274,7 @@ describe('/', () => {
               });
               it('provides each article object with keys: comment_id, votes, created_at, author, body', () => {
                 return request
-                  .get('/api/articles/2/comments')
+                  .get('/api/articles/1/comments')
                   .then(({ body: { comments } }) => {
                     const keysRequired = [
                       'comment_id',
@@ -295,13 +292,18 @@ describe('/', () => {
               });
               it('sorts output articles by descending created_at', () => {
                 return request
-                  .get('/api/articles/2/comments')
+                  .get('/api/articles/1/comments')
                   .then(({ body: { comments } }) => {
                     expect(comments).to.be.descendingBy('created_at');
                   });
               });
               describe('ERROR HANDLING', () => {
-                it('returns a status of 404 when a nonexistent parameter is supplied', () => {
+                it('returns a status of 400 when an invalid query is supplied', () => {
+                  return request
+                    .get('/api/articles/999999999/comments?invalidquery=0')
+                    .expect(400);
+                });
+                it('returns a status of 404 when a nonexistent parameter is supplied or no associated comments are found', () => {
                   return request
                     .get('/api/articles/999999999/comments')
                     .expect(404);

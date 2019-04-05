@@ -5,22 +5,14 @@ const {
   noRowsThrow404
 } = require('../utils');
 
-async function selectArticles(req) {
-  let whereObj = {};
-  Object.assign(whereObj, req.query);
-  Object.assign(whereObj, req.params);
-
-  let sortObj = { sort_by: 'created_at', order: 'desc' };
+function selectAllArticles(queryObj) {
+  const sortObj = { sort_by: 'created_at', order: 'desc' };
   ['sort_by', 'order'].forEach(sortProp => {
-    if (req.query.hasOwnProperty(sortProp)) {
-      sortObj[sortProp] = req.query[sortProp];
-      delete whereObj[sortProp];
+    if (queryObj.hasOwnProperty(sortProp)) {
+      sortObj[sortProp] = queryObj[sortProp];
+      delete queryObj[sortProp];
     }
   });
-
-  if (Object.keys(req.params).length > 0) {
-    await noRowsThrow404(connection, 'articles', whereObj);
-  }
 
   const articleFields = [
     'author',
@@ -32,15 +24,10 @@ async function selectArticles(req) {
     'votes'
   ];
 
-  for (prop in req.query) {
-    if (!['sort_by', 'order', ...articleFields].includes(prop)) {
-      throw { code: 400 };
-    }
-  }
-
   articleFields.forEach(field => {
-    if (whereObj.hasOwnProperty(field)) {
-      whereObj = objRenameKey(whereObj, field, `articles.${field}`);
+    if (queryObj.hasOwnProperty(field)) {
+      queryObj[`articles.${field}`] = queryObj[field];
+      delete queryObj[field];
     }
     if (sortObj.sortProp === field) {
       sortObj.sortProp === `articles.${field}`;
@@ -52,66 +39,71 @@ async function selectArticles(req) {
     .count('comments.comment_id AS comment_count')
     .from('articles')
     .leftJoin('comments', 'articles.article_id', '=', 'comments.article_id')
-    .where(whereObj)
+    .where(queryObj)
     .groupBy('articles.article_id')
     .orderBy(sortObj.sort_by, sortObj.order);
 }
 
-async function modifyArticles(req) {
-  const whereObj = {};
-  Object.assign(whereObj, req.query);
-  Object.assign(whereObj, req.params);
-  const updateObj = req.body;
+function selectArticle(params) {
+  const articleFields = [
+    'author',
+    'title',
+    'article_id',
+    'body',
+    'topic',
+    'created_at',
+    'votes'
+  ];
+  const useParams = {};
+  articleFields.forEach(field => {
+    if (params.hasOwnProperty(field)) {
+      useParams[`articles.${field}`] = params[field];
+    }
+  });
+  return connection
+    .select(...articleFields.map(field => `articles.${field}`))
+    .count('comments.comment_id AS comment_count')
+    .from('articles')
+    .leftJoin('comments', 'articles.article_id', '=', 'comments.article_id')
+    .where(useParams)
+    .groupBy('articles.article_id');
+}
 
-  await noRowsThrow404(connection, 'articles', whereObj);
-
+function modifyArticle(params, updateObj) {
+  const incrementObj = {};
   for (prop in updateObj) {
     if (/^inc_/.test(prop)) {
-      const updateProp = prop.replace(/^inc_/, '');
-      const currentRows = await selectTableColValues(
-        connection,
-        'articles',
-        updateProp,
-        whereObj
-      );
-      const updateValue = currentRows[0][updateProp];
-      updateObj[updateProp] = updateObj[prop] + updateValue;
+      incrementObj[prop.replace(/^inc_/, '')] = updateObj[prop];
       delete updateObj[prop];
     }
   }
-  return connection('articles')
-    .where(whereObj)
-    .update(updateObj)
+  const connectionPromise = connection('articles')
+    .where(params)
     .returning('*');
+
+  if (Object.keys(incrementObj).length > 0) {
+    connectionPromise.increment(incrementObj);
+  }
+  if (Object.keys(updateObj).length > 0) {
+    connectionPromise.update(updateObj);
+  }
+
+  return connectionPromise;
 }
 
-async function removeArticles(req) {
-  const whereObj = {};
-  Object.assign(whereObj, req.query);
-  Object.assign(whereObj, req.params);
-
-  await noRowsThrow404(connection, 'articles', whereObj);
-
+function removeArticle(params) {
   return connection('articles')
-    .where(whereObj)
+    .where(params)
     .del();
 }
 
-async function selectArticleComments(req) {
-  let whereObj = {};
-  Object.assign(whereObj, req.query);
-  Object.assign(whereObj, req.params);
-
-  let sortObj = { sort_by: 'created_at', order: 'desc' };
+function selectArticleComments(params, query) {
+  const sortObj = { sort_by: 'created_at', order: 'desc' };
   ['sort_by', 'order'].forEach(sortProp => {
-    if (req.query.hasOwnProperty(sortProp)) {
-      sortObj[sortProp] = req.query[sortProp];
-      delete whereObj[sortProp];
+    if (query.hasOwnProperty(sortProp)) {
+      sortObj[sortProp] = query[sortProp];
     }
   });
-
-  await noRowsThrow404(connection, 'articles', whereObj);
-
   const commentFields = [
     'comment_id',
     'votes',
@@ -120,33 +112,29 @@ async function selectArticleComments(req) {
     'body',
     'article_id'
   ];
-
-  for (prop in req.query) {
-    if (!commentFields.includes(prop)) {
-      throw { code: 400 };
-    }
-  }
-
+  const useParams = {};
   commentFields.forEach(field => {
-    if (whereObj.hasOwnProperty(field)) {
-      whereObj = objRenameKey(whereObj, field, `comments.${field}`);
+    if (params.hasOwnProperty(field)) {
+      useParams[`comments.${field}`] = params[field];
     }
     if (sortObj.sortProp === field) {
       sortObj.sortProp === `comments.${field}`;
     }
   });
-
   return connection
     .select(...commentFields.slice(0, -1).map(field => `comments.${field}`))
     .from('articles')
     .innerJoin('comments', 'articles.article_id', '=', 'comments.article_id')
-    .where(whereObj)
+    .where(useParams)
     .orderBy(sortObj.sort_by, sortObj.order);
 }
 
-function addArticleComment(req) {
-  const comment = objRenameKey(req.body, 'username', 'author');
-  comment.article_id = req.params.article_id;
+function addArticleComment(params, commentReqBody) {
+  const comment = {
+    author: commentReqBody.username,
+    body: commentReqBody.body,
+    article_id: params.article_id
+  };
   return connection
     .insert(comment)
     .into('comments')
@@ -154,9 +142,10 @@ function addArticleComment(req) {
 }
 
 module.exports = {
-  selectArticles,
-  modifyArticles,
-  removeArticles,
+  selectArticle,
+  modifyArticle,
+  removeArticle,
   selectArticleComments,
-  addArticleComment
+  addArticleComment,
+  selectAllArticles
 };
