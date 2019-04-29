@@ -6,7 +6,8 @@ const {
   deleteArticle,
   getArticleComments,
   postArticleComment,
-  getAllArticles
+  getAllArticles,
+  postArticle
 } = require('../controllers/articles-controller');
 
 articlesRouter
@@ -19,6 +20,7 @@ articlesRouter
   .get(getArticle)
   .patch(patchArticle)
   .delete(deleteArticle)
+  .post(postArticle)
   .all(methodNotAllowed);
 
 articlesRouter

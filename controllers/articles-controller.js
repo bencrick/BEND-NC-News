@@ -4,7 +4,8 @@ const {
   removeArticle,
   selectArticleComments,
   addArticleComment,
-  selectAllArticles
+  selectAllArticles,
+  addArticle
 } = require('../models/articles-models');
 
 function getAllArticles(req, res, next) {
@@ -128,6 +129,15 @@ function postArticleComment(req, res, next) {
     .catch(next);
 }
 
+function postArticle(req, res, next) {
+  addArticle(req.params, req.body)
+    .then(articles => {
+      const article = articles[0];
+      res.status(201).json({article});
+    })
+    .catch(next)
+}
+
 module.exports = {
   getArticle,
   patchArticle,
@@ -135,5 +145,6 @@ module.exports = {
   deleteArticle,
   getArticleComments,
   postArticleComment,
-  getAllArticles
+  getAllArticles,
+  postArticle
 };

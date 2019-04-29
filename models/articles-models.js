@@ -141,11 +141,25 @@ function addArticleComment(params, commentReqBody) {
     .returning('*');
 }
 
+function addArticle(params, articleReqBody) {
+  const article = {
+    title: articleReqBody.title,
+    body: articleReqBody.body,
+    topic: articleReqBody.topic,
+    author: articleReqBody.author
+  };
+  return connection
+    .insert(article)
+    .into('articles')
+    .returning('*');
+}
+
 module.exports = {
   selectArticle,
   modifyArticle,
   removeArticle,
   selectArticleComments,
   addArticleComment,
-  selectAllArticles
+  selectAllArticles,
+  addArticle
 };
